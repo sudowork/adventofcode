@@ -1,3 +1,4 @@
+use std::env;
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
@@ -12,4 +13,8 @@ where
         .map(|l| String::from(l.unwrap().trim()))
         .filter(|l| !l.is_empty())
         .collect()
+}
+
+pub fn get_input_file(default: &str) -> String {
+    env::args().skip(1).next().unwrap_or(default.to_string())
 }

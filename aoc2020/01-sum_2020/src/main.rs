@@ -1,11 +1,7 @@
 use std::collections::HashSet;
-use std::env;
 
 fn main() {
-    let input_file = env::args()
-        .skip(1)
-        .next()
-        .unwrap_or("./input.txt".to_string());
+    let input_file = util::get_input_file("./input.txt");
     let input = util::read_lines(input_file);
     let input: Vec<i32> = input.iter().map(|line| line.parse().unwrap()).collect();
     let (a, b) = complements(&input, 2020).unwrap();
