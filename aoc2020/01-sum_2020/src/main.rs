@@ -1,15 +1,12 @@
 use std::collections::HashSet;
 use std::env;
-use std::fs::File;
-use std::io::{self, BufRead};
-use std::path::Path;
 
 fn main() {
     let input_file = env::args()
         .skip(1)
         .next()
         .unwrap_or("./input.txt".to_string());
-    let input = read_lines(input_file);
+    let input = util::read_lines(input_file);
     let input: Vec<i32> = input.iter().map(|line| line.parse().unwrap()).collect();
     let (a, b) = complements(&input, 2020).unwrap();
     println!("Found Pair: ({}, {})", a, b);
@@ -38,16 +35,4 @@ fn triplets(xs: &Vec<i32>, sum: i32) -> Option<(i32, i32, i32)> {
         };
     }
     None
-}
-
-fn read_lines<P>(filepath: P) -> Vec<String>
-where
-    P: AsRef<Path>,
-{
-    let file = File::open(filepath).unwrap();
-    let lines = io::BufReader::new(file).lines();
-    lines
-        .map(|l| String::from(l.unwrap().trim()))
-        .filter(|l| !l.is_empty())
-        .collect()
 }
