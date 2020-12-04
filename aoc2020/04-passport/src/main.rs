@@ -1,3 +1,4 @@
+use regex::Regex;
 use std::collections::HashMap;
 use util;
 
@@ -11,8 +12,11 @@ fn main() {
     let input = util::read_lines_unfiltered(input_file);
 
     let passports = parse_passports(input);
+    let valid = passports.iter().filter(|p| has_required_fields(p)).count();
+    println!("Num passports with fields: {}", valid);
+
     let valid = passports.iter().filter(|p| is_valid(p)).count();
-    println!("Num valid passports: {}", valid);
+    println!("Num valid: {}", valid);
 }
 
 fn parse_passports(input: Vec<String>) -> Vec<Passport> {
@@ -47,6 +51,66 @@ fn parse_passport_line(line: &str) -> Passport {
 }
 
 fn is_valid(passport: &Passport) -> bool {
+    if !has_required_fields(passport) {
+        return false;
+    }
+    if !validate_digits(passport.get("byr").unwrap(), 4, 1920, 2002) {
+        return false;
+    }
+    if !validate_digits(passport.get("iyr").unwrap(), 4, 2010, 2020) {
+        return false;
+    }
+    if !validate_digits(passport.get("eyr").unwrap(), 4, 2020, 2030) {
+        return false;
+    }
+    let hgt = passport.get("hgt").unwrap();
+    if !((validate_regex(hgt, &Regex::new(r"^\d+cm$").unwrap())
+        && validate_digits(&hgt[..3], 3, 150, 193))
+        || (validate_regex(hgt, &Regex::new(r"^\d+in$").unwrap())
+            && validate_digits(&hgt[..2], 2, 59, 76)))
+    {
+        return false;
+    }
+    if !validate_regex(
+        passport.get("hcl").unwrap(),
+        &Regex::new("^#[0-9a-f]{6}$").unwrap(),
+    ) {
+        return false;
+    }
+    if !validate_oneof(
+        passport.get("ecl").unwrap(),
+        ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"].to_vec(),
+    ) {
+        return false;
+    }
+    if !validate_regex(
+        passport.get("pid").unwrap(),
+        &Regex::new(r"^\d{9}$").unwrap(),
+    ) {
+        return false;
+    }
+    true
+}
+
+fn validate_digits(digits: &str, len: usize, min: usize, max: usize) -> bool {
+    if digits.len() != len {
+        return false;
+    }
+    match digits.parse::<usize>() {
+        Ok(digits) => digits >= min && digits <= max,
+        Err(_) => false,
+    }
+}
+
+fn validate_regex(s: &str, re: &Regex) -> bool {
+    re.is_match(s)
+}
+
+fn validate_oneof(s: &str, options: Vec<&str>) -> bool {
+    options.iter().any(|&option| option == s)
+}
+
+fn has_required_fields(passport: &Passport) -> bool {
     REQUIRED_FIELDS
         .iter()
         .all(|f| passport.contains_key(&f.to_string()))
