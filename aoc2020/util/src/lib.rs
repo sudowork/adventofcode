@@ -7,12 +7,17 @@ pub fn read_lines<P>(filepath: P) -> Vec<String>
 where
     P: AsRef<Path>,
 {
+    let lines = read_lines_unfiltered(filepath);
+    lines.iter().cloned().filter(|l| !l.is_empty()).collect()
+}
+
+pub fn read_lines_unfiltered<P>(filepath: P) -> Vec<String>
+where
+    P: AsRef<Path>,
+{
     let file = File::open(filepath).unwrap();
     let lines = io::BufReader::new(file).lines();
-    lines
-        .map(|l| String::from(l.unwrap().trim()))
-        .filter(|l| !l.is_empty())
-        .collect()
+    lines.map(|l| String::from(l.unwrap().trim())).collect()
 }
 
 pub fn get_input_file(default: &str) -> String {
