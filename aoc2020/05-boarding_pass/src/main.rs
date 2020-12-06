@@ -4,15 +4,32 @@ fn main() {
 
     let highest_id = find_highest_seat_id(&input);
     println!("Highest Seat ID: {}", highest_id);
+
+    let my_seat_id = find_missing_seat_id(&input);
+    println!("My Seat ID: {}", my_seat_id.unwrap());
 }
 
 fn find_highest_seat_id(lines: &Vec<String>) -> u16 {
+    *get_seat_ids(lines).iter().max().unwrap()
+}
+
+fn find_missing_seat_id(lines: &Vec<String>) -> Option<u16> {
+    let mut seat_ids = get_seat_ids(lines);
+    seat_ids.sort();
+    for (prev, next) in seat_ids.iter().zip(seat_ids.iter().skip(1)) {
+        if next - prev > 1 {
+            return Some(next - 1);
+        }
+    }
+    None
+}
+
+fn get_seat_ids(lines: &Vec<String>) -> Vec<u16> {
     lines
         .iter()
         .map(|l| get_seat(l))
         .map(|(r, c)| get_seat_id(r, c))
-        .max()
-        .unwrap()
+        .collect()
 }
 
 fn get_seat(line: &str) -> (u8, u8) {
