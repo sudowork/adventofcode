@@ -9,9 +9,9 @@ const REQUIRED_FIELDS: [&str; 7] = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "p
 
 fn main() {
     let input_file = util::get_input_file("./input.txt");
-    let input = util::read_lines_unfiltered(input_file);
+    let groups = util::read_line_groups(input_file);
 
-    let passports = parse_passports(input);
+    let passports = parse_passports(groups);
     let valid = passports.iter().filter(|p| has_required_fields(p)).count();
     println!("Num passports with fields: {}", valid);
 
@@ -19,20 +19,15 @@ fn main() {
     println!("Num valid: {}", valid);
 }
 
-fn parse_passports(input: Vec<String>) -> Vec<Passport> {
+fn parse_passports(groups: Vec<Vec<String>>) -> Vec<Passport> {
     let mut passports = Vec::new();
-    let mut passport = Passport::new();
-    for line in input.iter() {
-        if line.is_empty() && !passport.is_empty() {
-            passports.push(passport);
-            passport = Passport::new();
-            continue;
+    for group in groups {
+        let mut passport = Passport::new();
+        for line in group.iter() {
+            for (key, value) in parse_passport_line(line) {
+                passport.insert(key, value);
+            }
         }
-        for (key, value) in parse_passport_line(line) {
-            passport.insert(key, value);
-        }
-    }
-    if !passport.is_empty() {
         passports.push(passport);
     }
     passports
