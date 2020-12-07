@@ -24,7 +24,7 @@ fn complements(xs: &Vec<i32>, sum: i32) -> Option<(i32, i32)> {
 }
 
 fn triplets(xs: &Vec<i32>, sum: i32) -> Option<(i32, i32, i32)> {
-    for x in xs.iter() {
+    for x in xs {
         match complements(xs, sum - x) {
             Some((y, z)) => return Some((*x, y, z)),
             _ => continue,

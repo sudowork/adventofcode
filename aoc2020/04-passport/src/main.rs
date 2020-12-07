@@ -35,9 +35,9 @@ fn main() {
 
 fn parse_passports(groups: Vec<Vec<String>>) -> Vec<Passport> {
     let mut passports = Vec::new();
-    for group in groups {
+    for group in &groups {
         let mut passport = Passport::new();
-        for line in group.iter() {
+        for line in group {
             for (key, value) in parse_passport_line(line) {
                 passport.insert(key, value);
             }
@@ -87,7 +87,7 @@ fn has_required_fields(passport: &Passport) -> bool {
 }
 
 fn validate_passport(passport: &Passport, rules: &HashMap<&str, Vec<ValidationRule>>) -> bool {
-    for (&key, rules) in rules.iter() {
+    for (&key, rules) in rules {
         let value = passport.get(key).unwrap();
         if !rules.iter().all(|rule| rule(value)) {
             return false;
