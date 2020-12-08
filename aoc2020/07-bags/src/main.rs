@@ -24,7 +24,15 @@ fn main() {
 
     // part 1
     let containers = bags_containing(&bag_map, "shiny gold");
-    println!("{}", containers.len());
+    println!(
+        "Bag colors containing {}: {}",
+        "shiny gold",
+        containers.len()
+    );
+
+    // part 2
+    let bag_count = bags_contained(&bag_map, "shiny gold");
+    println!("Individuals bags containing: {}", bag_count - 1);
 }
 
 fn bags_containing(map: &HashMap<&str, Bag>, color: &str) -> HashSet<String> {
@@ -35,6 +43,19 @@ fn bags_containing(map: &HashMap<&str, Bag>, color: &str) -> HashSet<String> {
     dfs(map, color, &mut visit, true);
     set.remove(color);
     set.clone()
+}
+
+fn bags_contained(map: &HashMap<&str, Bag>, color: &str) -> usize {
+    let bag = map.get(color).unwrap();
+    if bag.contains.is_empty() {
+        return 1;
+    }
+    1 + bag
+        .contains
+        .iter()
+        // TODO: Could optimize with memoization
+        .map(|(color, ct)| ct * bags_contained(map, color))
+        .fold(0, |a, b| a + b)
 }
 
 fn parse_rules(lines: &Vec<String>) -> Vec<Rule> {
