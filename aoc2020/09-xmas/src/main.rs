@@ -11,6 +11,9 @@ fn main() {
 
     let encryption_weakness = find_encryption_weakness(invalid, &sequence);
     println!("Encryption weakness: {:?}", encryption_weakness);
+
+    let encryption_weakness = find_encryption_weakness_efficient(invalid, &sequence);
+    println!("Encryption weakness: {:?}", encryption_weakness);
 }
 
 fn find_first_invalid(xs: &Vec<u64>, preamble: usize) -> u64 {
@@ -43,6 +46,27 @@ fn find_encryption_weakness(sum: u64, xs: &Vec<u64>) -> Option<u64> {
                 println!("Seq: {:?}", seq);
                 return Some(seq.iter().min().unwrap() + seq.iter().max().unwrap());
             }
+        }
+    }
+    None
+}
+
+fn find_encryption_weakness_efficient(sum: u64, xs: &Vec<u64>) -> Option<u64> {
+    let mut cont_sum = 0;
+    let mut i = 0;
+    for j in 0..xs.len() {
+        cont_sum += xs[j];
+        while cont_sum > sum && j > i {
+            cont_sum -= xs[i];
+            i += 1;
+            if cont_sum == sum {
+                break;
+            }
+        }
+        if cont_sum == sum {
+            let seq = &xs[i..j + 1];
+            println!("{:?}", seq);
+            return Some(seq.iter().min().unwrap() + seq.iter().max().unwrap());
         }
     }
     None
