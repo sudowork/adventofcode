@@ -1,3 +1,6 @@
+#![feature(test)]
+extern crate test;
+
 use std::collections::HashSet;
 
 fn main() {
@@ -70,4 +73,20 @@ fn find_encryption_weakness_efficient(sum: u64, xs: &Vec<u64>) -> Option<u64> {
         }
     }
     None
+}
+
+#[bench]
+fn bench_find_ew_slow(b: &mut test::Bencher) {
+    let input = util::read_lines("./input.txt");
+    let sequence: Vec<u64> = input.iter().map(|l| l.parse().unwrap()).collect();
+    let invalid = find_first_invalid(&sequence, 25);
+    b.iter(|| find_encryption_weakness(invalid, &sequence));
+}
+
+#[bench]
+fn bench_find_ew_fast(b: &mut test::Bencher) {
+    let input = util::read_lines("./input.txt");
+    let sequence: Vec<u64> = input.iter().map(|l| l.parse().unwrap()).collect();
+    let invalid = find_first_invalid(&sequence, 25);
+    b.iter(|| find_encryption_weakness(invalid, &sequence));
 }
