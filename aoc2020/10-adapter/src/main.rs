@@ -41,15 +41,15 @@ fn count_joltage_diffs(joltages: &Vec<usize>) -> HashMap<usize, usize> {
     diff_counts
 }
 
-fn count_paths(joltages: &Vec<usize>) -> usize {
+fn count_paths(orig_joltages: &Vec<usize>) -> usize {
+    let mut joltages: Vec<usize> = Vec::new();
+    joltages.push(0);
+    joltages.extend(orig_joltages);
     let num = joltages.len();
     let lookup = |i| joltages.get(i).unwrap();
     let mut memo = vec![0; num];
-    for i in 0..3 {
-        if lookup(i) <= &3 {
-            memo[i] = 1;
-        }
-    }
+    memo[0] = 1;
+
     for i in 1..num {
         let mut prev_sum = 0;
         for j in (if i < 3 { 0 } else { i - 3 })..i {
@@ -57,7 +57,7 @@ fn count_paths(joltages: &Vec<usize>) -> usize {
                 prev_sum += memo[j];
             }
         }
-        memo[i] += prev_sum;
+        memo[i] = prev_sum;
     }
     *memo.last().unwrap()
 }
