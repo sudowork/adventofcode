@@ -16,8 +16,12 @@ fn main() {
     let seating = parse_seating(&input);
 
     // part 1
-    let occupants = count_stable(&seating);
-    println!("Occupants: {}", occupants);
+    let occupants = count_stable(&seating, &count_adjacent, 4);
+    println!("Part 1 Occupants: {}", occupants);
+
+    // part 2
+    let occupants = count_stable(&seating, &count_eyeline, 5);
+    println!("Part 2 Occupants: {}", occupants);
 }
 
 fn parse_seating(input: &Vec<String>) -> SeatingLayout {
@@ -85,7 +89,7 @@ fn run(
     new_seating
 }
 
-fn count_neighbors(seating: &SeatingLayout, i: usize, j: usize) -> usize {
+fn count_adjacent(seating: &SeatingLayout, i: usize, j: usize) -> usize {
     let i = i as isize;
     let j = j as isize;
     let mut count = 0;
@@ -106,6 +110,42 @@ fn count_neighbors(seating: &SeatingLayout, i: usize, j: usize) -> usize {
         }
     }
     count
+}
+
+fn count_eyeline(seating: &SeatingLayout, i: usize, j: usize) -> usize {
+    let mut count = 0;
+    for k in (-1 as isize)..=1 {
+        for l in (-1 as isize)..=1 {
+            if k == 0 && l == 0 {
+                continue;
+            }
+            count += count_direction(seating, i, j, (k, l));
+        }
+    }
+    count
+}
+
+fn count_direction(seating: &SeatingLayout, i: usize, j: usize, offset: (isize, isize)) -> usize {
+    let (i_offset, j_offset) = offset;
+    let mut i = i as isize;
+    let mut j = j as isize;
+    loop {
+        i += i_offset;
+        j += j_offset;
+        if i < 0 || i as usize >= seating.len() {
+            return 0;
+        }
+        if j < 0 || j as usize >= seating[0].len() {
+            return 0;
+        }
+        let seat = seating[i as usize][j as usize];
+        if seat == State::Empty {
+            return 0;
+        }
+        if seat == State::Occupied {
+            return 1;
+        }
+    }
 }
 
 fn count_occupants(seating: &SeatingLayout) -> usize {
