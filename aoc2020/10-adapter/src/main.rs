@@ -7,9 +7,14 @@ fn main() {
 
     let joltages = get_joltages(&input);
 
+    // part 1
     let diff_counts = count_joltage_diffs(&joltages);
     let product = diff_counts.get(&1).unwrap() * diff_counts.get(&3).unwrap();
     println!("{:?}, product={}", diff_counts, product);
+
+    // part 2
+    let num_paths = count_paths(&joltages);
+    println!("Num paths: {}", num_paths);
 }
 
 fn get_joltages(input: &Vec<String>) -> Vec<usize> {
@@ -34,4 +39,25 @@ fn count_joltage_diffs(joltages: &Vec<usize>) -> HashMap<usize, usize> {
         *diff_counts.entry(diff).or_insert(0) += 1
     }
     diff_counts
+}
+
+fn count_paths(joltages: &Vec<usize>) -> usize {
+    let num = joltages.len();
+    let lookup = |i| joltages.get(i).unwrap();
+    let mut memo = vec![0; num];
+    for i in 0..3 {
+        if lookup(i) <= &3 {
+            memo[i] = 1;
+        }
+    }
+    for i in 1..num {
+        let mut prev_sum = 0;
+        for j in (if i < 3 { 0 } else { i - 3 })..i {
+            if lookup(i) - lookup(j) <= 3 {
+                prev_sum += memo[j];
+            }
+        }
+        memo[i] += prev_sum;
+    }
+    *memo.last().unwrap()
 }
