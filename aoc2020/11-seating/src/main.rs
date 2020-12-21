@@ -35,11 +35,15 @@ fn parse_seating(input: &Vec<String>) -> SeatingLayout {
         .collect()
 }
 
-fn count_stable(seating: &SeatingLayout) -> usize {
+fn count_stable(
+    seating: &SeatingLayout,
+    count_seats: &dyn Fn(&SeatingLayout, usize, usize) -> usize,
+    occupant_limit: usize,
+) -> usize {
     let mut curr_seating = seating.clone();
     let mut last_hash = util::hash(seating);
     loop {
-        curr_seating = run(&curr_seating);
+        curr_seating = run(&curr_seating, count_seats, occupant_limit);
         let curr_hash = util::hash(&curr_seating);
         if last_hash == curr_hash {
             return count_occupants(&curr_seating);
@@ -48,7 +52,11 @@ fn count_stable(seating: &SeatingLayout) -> usize {
     }
 }
 
-fn run(seating: &SeatingLayout) -> SeatingLayout {
+fn run(
+    seating: &SeatingLayout,
+    count_seats: &dyn Fn(&SeatingLayout, usize, usize) -> usize,
+    occupant_limit: usize,
+) -> SeatingLayout {
     let mut new_seating: SeatingLayout = seating
         .iter()
         .map(|row| row.iter().cloned().collect())
@@ -57,14 +65,14 @@ fn run(seating: &SeatingLayout) -> SeatingLayout {
         for j in 0..seating[0].len() {
             new_seating[i][j] = match seating[i][j] {
                 State::Empty => {
-                    if count_neighbors(seating, i, j) == 0 {
+                    if count_seats(seating, i, j) == 0 {
                         State::Occupied
                     } else {
                         State::Empty
                     }
                 }
                 State::Occupied => {
-                    if count_neighbors(seating, i, j) >= 4 {
+                    if count_seats(seating, i, j) >= occupant_limit {
                         State::Empty
                     } else {
                         State::Occupied
