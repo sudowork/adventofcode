@@ -1,5 +1,7 @@
+use std::collections::hash_map::DefaultHasher;
 use std::env;
 use std::fs::File;
+use std::hash::{Hash, Hasher};
 use std::io::{self, BufRead};
 use std::path::Path;
 
@@ -39,4 +41,10 @@ where
 
 pub fn get_input_file(default: &str) -> String {
     env::args().skip(1).next().unwrap_or(default.to_string())
+}
+
+pub fn hash<T: Hash>(t: &T) -> u64 {
+    let mut s = DefaultHasher::new();
+    t.hash(&mut s);
+    s.finish()
 }
