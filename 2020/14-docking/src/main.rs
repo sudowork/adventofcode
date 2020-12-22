@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 enum Instruction {
     Mask(u64, u64),
-    Mem(usize, u64),
+    Mem(u64, u64),
 }
 
 fn main() {
@@ -41,7 +41,7 @@ fn parse_instruction(line: &str) -> Instruction {
     }
 }
 
-fn run(instructions: &Vec<Instruction>) -> HashMap<usize, u64> {
+fn run(instructions: &Vec<Instruction>) -> HashMap<u64, u64> {
     let mut mem = HashMap::new();
     let mut mask: u64 = 0b0;
     let mut mask_value: u64 = 0b0;
@@ -59,6 +59,6 @@ fn run(instructions: &Vec<Instruction>) -> HashMap<usize, u64> {
     mem
 }
 
-fn sum_memory(memory: &HashMap<usize, u64>) -> u64 {
+fn sum_memory(memory: &HashMap<u64, u64>) -> u64 {
     memory.values().sum()
 }
