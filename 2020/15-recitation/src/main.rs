@@ -13,8 +13,8 @@ fn main() {
     println!("2020th number: {}", answer);
 
     // part 2
-    let answer = recite(&numbers, 30000000);
-    println!("30000000th number: {}", answer);
+    let answer = recite(&numbers, 30_000_000);
+    println!("30,000,000th number: {}", answer);
 }
 
 fn recite(numbers: &Vec<usize>, nth: usize) -> usize {
