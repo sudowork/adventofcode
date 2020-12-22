@@ -8,8 +8,13 @@ fn main() {
 
     let numbers: Vec<usize> = input[0].split(",").map(|l| l.parse().unwrap()).collect();
 
+    // part 1
     let answer = recite(&numbers, 2020);
     println!("2020th number: {}", answer);
+
+    // part 2
+    let answer = recite(&numbers, 30000000);
+    println!("30000000th number: {}", answer);
 }
 
 fn recite(numbers: &Vec<usize>, nth: usize) -> usize {
