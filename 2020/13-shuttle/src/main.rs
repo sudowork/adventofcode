@@ -62,10 +62,15 @@ fn find_bus_seq_time_iterative(input: &Vec<String>) -> u64 {
         .collect();
     let mut time = buses[0].1;
     let mut multiple = buses[0].1;
+    // Iteratively sieve:
+    //   T = (T_n-1 + LCM(0..n-1)*x) + offset = 0
+    //   Multiples of LCM will result in same offset pattern.
+    // See also: Chinese Remainder Theorem
     for (offset, bus) in &buses[1..] {
         while (time + *offset) % *bus != 0 {
             time += multiple;
         }
+        // bus #'s are primes, so LCM can be found just by multiplying
         multiple *= *bus;
     }
     time
