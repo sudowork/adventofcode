@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::ops::RangeInclusive;
 
 type Ticket = Vec<usize>;
+type FieldRanges = Vec<RangeInclusive<usize>>;
 
 fn main() {
     let input_file = util::get_input_file("./input.txt");
@@ -14,22 +15,23 @@ fn main() {
     println!("Error rate: {}", error_rate);
 }
 
-fn check_error_rate(
-    tickets: &[Ticket],
-    ranges: &HashMap<&str, Vec<RangeInclusive<usize>>>,
-) -> usize {
-    let mut error_rate = 0;
-    for ticket in tickets {
-        for field in ticket {
-            if !ranges.values().flatten().any(|r| r.contains(field)) {
-                error_rate += field;
-            }
-        }
-    }
-    error_rate
+fn check_error_rate(tickets: &[Ticket], ranges: &HashMap<&str, FieldRanges>) -> usize {
+    tickets.iter().flat_map(|t| invalid_fields(t, ranges)).sum()
 }
 
-fn parse_ranges(input: &[String]) -> HashMap<&str, Vec<RangeInclusive<usize>>> {
+fn invalid_fields(ticket: &Ticket, ranges: &HashMap<&str, FieldRanges>) -> Ticket {
+    ticket
+        .iter()
+        .cloned()
+        .filter(|&f| !is_field_valid(f, ranges))
+        .collect()
+}
+
+fn is_field_valid(field: usize, ranges: &HashMap<&str, FieldRanges>) -> bool {
+    ranges.values().flatten().any(|r| r.contains(&field))
+}
+
+fn parse_ranges(input: &[String]) -> HashMap<&str, FieldRanges> {
     let mut ranges = HashMap::new();
     for line in input {
         if line.is_empty() {
