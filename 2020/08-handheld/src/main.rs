@@ -19,7 +19,7 @@ fn main() {
     println!("Terminated acc: {}", acc);
 }
 
-fn parse_instructions(input: &Vec<String>) -> Vec<Instruction> {
+fn parse_instructions(input: &[String]) -> Vec<Instruction> {
     input
         .iter()
         .map(|l| {
@@ -36,7 +36,7 @@ fn parse_instructions(input: &Vec<String>) -> Vec<Instruction> {
         .collect()
 }
 
-fn run_with_swaps(instructions: &Vec<Instruction>) -> isize {
+fn run_with_swaps(instructions: &[Instruction]) -> isize {
     for (i, op) in instructions.iter().enumerate() {
         match op {
             Instruction::Acc(_) => continue,
@@ -53,7 +53,7 @@ fn run_with_swaps(instructions: &Vec<Instruction>) -> isize {
     panic!("No successful swap found");
 }
 
-fn swap_instruction(instructions: &Vec<Instruction>, pointer: usize) -> Vec<Instruction> {
+fn swap_instruction(instructions: &[Instruction], pointer: usize) -> Vec<Instruction> {
     let mut new_instructions = vec![];
     new_instructions.extend_from_slice(&instructions[..pointer]);
     match instructions[pointer] {
@@ -65,7 +65,7 @@ fn swap_instruction(instructions: &Vec<Instruction>, pointer: usize) -> Vec<Inst
     new_instructions
 }
 
-fn run(instructions: &Vec<Instruction>) -> (isize, bool) {
+fn run(instructions: &[Instruction]) -> (isize, bool) {
     let mut acc: isize = 0;
     let mut pointer: usize = 0;
     let mut seen: HashSet<usize> = HashSet::new();
