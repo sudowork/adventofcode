@@ -19,7 +19,7 @@ fn main() {
     println!("Encryption weakness: {:?}", encryption_weakness);
 }
 
-fn find_first_invalid(xs: &Vec<u64>, preamble: usize) -> u64 {
+fn find_first_invalid(xs: &[u64], preamble: usize) -> u64 {
     let mut previous: HashSet<u64> = xs[..preamble].iter().cloned().collect();
     for (i, x) in xs[preamble..].iter().enumerate() {
         if !sum2(*x, &previous) {
@@ -36,12 +36,12 @@ fn sum2(sum: u64, xs: &HashSet<u64>) -> bool {
     xs.intersection(&complements).count() >= 2
 }
 
-fn find_encryption_weakness(sum: u64, xs: &Vec<u64>) -> Option<u64> {
+fn find_encryption_weakness(sum: u64, xs: &[u64]) -> Option<u64> {
     // Using O(n^2) algo, but practically O(n) since num contiguous to form sum is likely a small number
     for i in 0..xs.len() - 1 {
         for j in (i + 1)..xs.len() {
             let seq = &xs[i..j];
-            let cont_sum = seq.iter().fold(0, |a, b| a + b);
+            let cont_sum: u64 = seq.iter().sum();
             if cont_sum > sum {
                 break;
             }
@@ -54,7 +54,7 @@ fn find_encryption_weakness(sum: u64, xs: &Vec<u64>) -> Option<u64> {
     None
 }
 
-fn find_encryption_weakness_efficient(sum: u64, xs: &Vec<u64>) -> Option<u64> {
+fn find_encryption_weakness_efficient(sum: u64, xs: &[u64]) -> Option<u64> {
     let mut cont_sum = 0;
     let mut i = 0;
     for j in 0..xs.len() {
