@@ -40,7 +40,7 @@ fn _run(actives: &HashSet<Coord>) -> HashSet<Coord> {
     new_actives
 }
 
-fn should_activate(coord: &Coord, actives: &HashSet<Coord>) -> bool {
+fn should_activate(coord: &[isize], actives: &HashSet<Coord>) -> bool {
     let neighbors = count_neighbors(&coord, actives);
     if actives.contains(coord) {
         neighbors == 2 || neighbors == 3
@@ -49,14 +49,14 @@ fn should_activate(coord: &Coord, actives: &HashSet<Coord>) -> bool {
     }
 }
 
-fn count_neighbors(coord: &Coord, actives: &HashSet<Coord>) -> usize {
+fn count_neighbors(coord: &[isize], actives: &HashSet<Coord>) -> usize {
     get_adjacent(coord)
         .iter()
         .filter(|&c| actives.contains(c))
         .count()
 }
 
-fn get_adjacent(coord: &Coord) -> HashSet<Coord> {
+fn get_adjacent(coord: &[isize]) -> HashSet<Coord> {
     let dimensions = coord.len();
     let coord_iters: Vec<Vec<isize>> = iter::repeat((-1..=1).collect()).take(dimensions).collect();
     cartesian_product(&coord_iters)
@@ -81,7 +81,7 @@ fn parse_input(input: &[String], dimensions: usize) -> HashSet<Coord> {
 }
 
 // Borrowed from https://rosettacode.org/wiki/Cartesian_product_of_two_or_more_lists#Rust
-fn cartesian_product<T: Copy>(lists: &Vec<Vec<T>>) -> Vec<Vec<T>> {
+fn cartesian_product<T: Copy>(lists: &[Vec<T>]) -> Vec<Vec<T>> {
     let mut res: Vec<Vec<T>> = vec![];
     let mut list_iter = lists.iter();
     if let Some(first_list) = list_iter.next() {
