@@ -1,5 +1,3 @@
-use util;
-
 #[derive(Clone, PartialEq, Hash, Copy)]
 enum State {
     Floor,
@@ -8,6 +6,7 @@ enum State {
 }
 
 type SeatingLayout = Vec<Vec<State>>;
+type SeatingLayoutArg = [Vec<State>];
 
 fn main() {
     let input_file = util::get_input_file("./input.txt");
@@ -24,7 +23,7 @@ fn main() {
     println!("Part 2 Occupants: {}", occupants);
 }
 
-fn parse_seating(input: &Vec<String>) -> SeatingLayout {
+fn parse_seating(input: &[String]) -> SeatingLayout {
     input
         .iter()
         .map(|l| {
@@ -39,12 +38,13 @@ fn parse_seating(input: &Vec<String>) -> SeatingLayout {
         .collect()
 }
 
+#[allow(clippy::ptr_arg)]
 fn count_stable(
     seating: &SeatingLayout,
-    count_seats: &dyn Fn(&SeatingLayout, usize, usize) -> usize,
+    count_seats: &dyn Fn(&SeatingLayoutArg, usize, usize) -> usize,
     occupant_limit: usize,
 ) -> usize {
-    let mut curr_seating = seating.clone();
+    let mut curr_seating = seating.to_owned();
     let mut last_hash = util::hash(seating);
     loop {
         curr_seating = run(&curr_seating, count_seats, occupant_limit);
@@ -57,14 +57,11 @@ fn count_stable(
 }
 
 fn run(
-    seating: &SeatingLayout,
-    count_seats: &dyn Fn(&SeatingLayout, usize, usize) -> usize,
+    seating: &SeatingLayoutArg,
+    count_seats: &dyn Fn(&SeatingLayoutArg, usize, usize) -> usize,
     occupant_limit: usize,
 ) -> SeatingLayout {
-    let mut new_seating: SeatingLayout = seating
-        .iter()
-        .map(|row| row.iter().cloned().collect())
-        .collect();
+    let mut new_seating: SeatingLayout = seating.iter().map(|row| row.to_vec()).collect();
     for i in 0..seating.len() {
         for j in 0..seating[0].len() {
             new_seating[i][j] = match seating[i][j] {
@@ -89,12 +86,12 @@ fn run(
     new_seating
 }
 
-fn count_adjacent(seating: &SeatingLayout, i: usize, j: usize) -> usize {
+fn count_adjacent(seating: &SeatingLayoutArg, i: usize, j: usize) -> usize {
     let i = i as isize;
     let j = j as isize;
     let mut count = 0;
-    for k in (-1 as isize)..=1 {
-        for l in (-1 as isize)..=1 {
+    for k in -1_isize..=1 {
+        for l in -1_isize..=1 {
             if k == 0 && l == 0 {
                 continue;
             }
@@ -112,10 +109,10 @@ fn count_adjacent(seating: &SeatingLayout, i: usize, j: usize) -> usize {
     count
 }
 
-fn count_eyeline(seating: &SeatingLayout, i: usize, j: usize) -> usize {
+fn count_eyeline(seating: &SeatingLayoutArg, i: usize, j: usize) -> usize {
     let mut count = 0;
-    for k in (-1 as isize)..=1 {
-        for l in (-1 as isize)..=1 {
+    for k in -1_isize..=1 {
+        for l in -1_isize..=1 {
             if k == 0 && l == 0 {
                 continue;
             }
@@ -125,7 +122,12 @@ fn count_eyeline(seating: &SeatingLayout, i: usize, j: usize) -> usize {
     count
 }
 
-fn count_direction(seating: &SeatingLayout, i: usize, j: usize, offset: (isize, isize)) -> usize {
+fn count_direction(
+    seating: &SeatingLayoutArg,
+    i: usize,
+    j: usize,
+    offset: (isize, isize),
+) -> usize {
     let (i_offset, j_offset) = offset;
     let mut i = i as isize;
     let mut j = j as isize;
@@ -148,7 +150,7 @@ fn count_direction(seating: &SeatingLayout, i: usize, j: usize, offset: (isize, 
     }
 }
 
-fn count_occupants(seating: &SeatingLayout) -> usize {
+fn count_occupants(seating: &SeatingLayoutArg) -> usize {
     seating
         .iter()
         .map(|row| row.iter().filter(|&s| s == &State::Occupied).count())
@@ -156,7 +158,7 @@ fn count_occupants(seating: &SeatingLayout) -> usize {
 }
 
 #[allow(dead_code)]
-fn print_seating(seating: &SeatingLayout) {
+fn print_seating(seating: &SeatingLayoutArg) {
     for row in seating {
         for state in row {
             match state {
@@ -165,7 +167,7 @@ fn print_seating(seating: &SeatingLayout) {
                 State::Floor => print!("."),
             }
         }
-        println!("");
+        println!();
     }
-    println!("");
+    println!();
 }
