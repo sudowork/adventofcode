@@ -23,7 +23,7 @@ fn main() {
     println!("Sum of memory: {}", sum_memory(&memory));
 }
 
-fn parse_instructions(input: &Vec<String>) -> Vec<Instruction> {
+fn parse_instructions(input: &[String]) -> Vec<Instruction> {
     input.iter().map(|l| parse_instruction(l)).collect()
 }
 
@@ -49,7 +49,7 @@ fn parse_instruction(line: &str) -> Instruction {
     }
 }
 
-fn run(instructions: &Vec<Instruction>) -> HashMap<u64, u64> {
+fn run(instructions: &[Instruction]) -> HashMap<u64, u64> {
     let mut mem = HashMap::new();
     let mut mask: u64 = 0b0;
     let mut mask_value: u64 = 0b0;
@@ -67,7 +67,7 @@ fn run(instructions: &Vec<Instruction>) -> HashMap<u64, u64> {
     mem
 }
 
-fn run2(instructions: &Vec<Instruction>) -> HashMap<u64, u64> {
+fn run2(instructions: &[Instruction]) -> HashMap<u64, u64> {
     let mut mem = HashMap::new();
     let mut mask: u64 = 0b0;
     let mut mask_value: u64 = 0b0;
@@ -97,7 +97,7 @@ fn fluct_addr(addr: u64, mask: u64) -> impl std::iter::Iterator<Item = u64> {
     let mut i = 0;
     std::iter::from_fn(move || {
         // Enumerate 0..2^(num ones) and encode address mask
-        if i == (2 as u32).pow(ones.len() as u32) {
+        if i == 2_u32.pow(ones.len() as u32) {
             return None;
         }
         let addr_mask_value = ones.iter().enumerate().fold(0b0, |value, (j, bit)| {
