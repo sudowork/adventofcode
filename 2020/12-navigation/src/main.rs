@@ -1,7 +1,5 @@
 #![feature(destructuring_assignment)]
 
-use util;
-
 #[derive(PartialEq, Clone, Copy)]
 enum Direction {
     North,
@@ -43,7 +41,7 @@ fn main() {
     println!("({}, {}) Manhattan Distance: {}", x, y, x.abs() + y.abs());
 }
 
-fn parse_instructions(input: &Vec<String>) -> Vec<Instruction> {
+fn parse_instructions(input: &[String]) -> Vec<Instruction> {
     input.iter().map(|l| parse_instruction(l)).collect()
 }
 
@@ -60,7 +58,7 @@ fn parse_instruction(line: &str) -> Instruction {
     }
 }
 
-fn navigate(instructions: &Vec<Instruction>) -> (isize, isize) {
+fn navigate(instructions: &[Instruction]) -> (isize, isize) {
     let mut x: isize = 0;
     let mut y: isize = 0;
     let mut direction = Direction::East;
@@ -87,7 +85,7 @@ fn navigate(instructions: &Vec<Instruction>) -> (isize, isize) {
     (x, y)
 }
 
-fn navigate2(instructions: &Vec<Instruction>) -> (isize, isize) {
+fn navigate2(instructions: &[Instruction]) -> (isize, isize) {
     let mut x: isize = 0;
     let mut y: isize = 0;
     let mut waypoint_x: isize = 10;
