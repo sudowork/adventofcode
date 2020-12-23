@@ -40,7 +40,7 @@ where
 }
 
 pub fn get_input_file(default: &str) -> String {
-    env::args().skip(1).next().unwrap_or(default.to_string())
+    env::args().nth(1).unwrap_or_else(|| default.to_string())
 }
 
 pub fn hash<T: Hash>(t: &T) -> u64 {
