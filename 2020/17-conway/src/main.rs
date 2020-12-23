@@ -2,7 +2,6 @@ use std::collections::HashSet;
 use std::iter;
 
 type Coord = Vec<isize>;
-type Bound = (isize, isize);
 
 fn main() {
     let input_file = util::get_input_file("./input.txt");
@@ -29,64 +28,42 @@ fn run(actives: &HashSet<Coord>, iterations: usize) -> HashSet<Coord> {
 
 fn _run(actives: &HashSet<Coord>) -> HashSet<Coord> {
     let mut new_actives = HashSet::new();
-    let bounds = find_bounds(actives);
-    let dimension_iters: Vec<Vec<isize>> = bounds
+    let all_neighbors: HashSet<Coord> = actives
         .iter()
-        .map(|(min, max)| (*min..=*max).collect())
+        .flat_map(|coord| get_adjacent(&coord))
         .collect();
-    for coord in &cartesian_product(&dimension_iters) {
-        if should_activate(coord.clone(), actives) {
+    for coord in &all_neighbors {
+        if should_activate(coord, actives) {
             new_actives.insert(coord.clone());
         }
     }
     new_actives
 }
 
-/// Returns the bounding box +/- 1 for the 3-D space.
-fn find_bounds(actives: &HashSet<Coord>) -> Vec<Bound> {
-    let mut actives = actives.iter();
-    let mut bounds: Vec<Bound> = actives
-        .next()
-        .unwrap()
-        .iter()
-        .map(|dim| (dim - 1, dim + 1))
-        .collect();
-    for coord in actives {
-        for i in 0..coord.len() {
-            let (min, max) = bounds[i];
-            if coord[i] - 1 < min {
-                bounds[i] = (coord[i] - 1, max);
-            }
-            if coord[i] + 1 > max {
-                bounds[i] = (min, coord[i] + 1);
-            }
-        }
-    }
-    bounds
-}
-
-fn should_activate(coord: Coord, actives: &HashSet<Coord>) -> bool {
-    let mut neighbors = 0;
-    let dimensions = coord.len();
-    let coord_iters: Vec<Vec<isize>> = iter::repeat((-1..=1).collect()).take(dimensions).collect();
-
-    for coord_ in cartesian_product(&coord_iters) {
-        if coord_.iter().all(|&offset| offset == 0) {
-            continue;
-        }
-        if actives.contains(
-            &((0..dimensions)
-                .map(|i| coord[i] + coord_[i])
-                .collect::<Vec<isize>>()),
-        ) {
-            neighbors += 1;
-        }
-    }
-    if actives.contains(&coord) {
+fn should_activate(coord: &Coord, actives: &HashSet<Coord>) -> bool {
+    let neighbors = count_neighbors(&coord, actives);
+    if actives.contains(coord) {
         neighbors == 2 || neighbors == 3
     } else {
         neighbors == 3
     }
+}
+
+fn count_neighbors(coord: &Coord, actives: &HashSet<Coord>) -> usize {
+    get_adjacent(coord)
+        .iter()
+        .filter(|&c| actives.contains(c))
+        .count()
+}
+
+fn get_adjacent(coord: &Coord) -> HashSet<Coord> {
+    let dimensions = coord.len();
+    let coord_iters: Vec<Vec<isize>> = iter::repeat((-1..=1).collect()).take(dimensions).collect();
+    cartesian_product(&coord_iters)
+        .iter()
+        .filter(|coord_| !coord_.iter().all(|&offset| offset == 0))
+        .map(|coord_| (0..dimensions).map(|i| coord[i] + coord_[i]).collect())
+        .collect()
 }
 
 fn parse_input(input: &[String], dimensions: usize) -> HashSet<Coord> {
