@@ -20,17 +20,17 @@ fn main() {
     println!("Bus sequence time: {}", bus_time);
 }
 
-fn parse_input(input: &Vec<String>) -> (usize, Vec<usize>) {
+fn parse_input(input: &[String]) -> (usize, Vec<usize>) {
     let time: usize = input[0].parse().unwrap();
     let buses: Vec<usize> = input[1]
-        .split(",")
+        .split(',')
         .filter(|&s| s != "x")
         .map(|s| s.parse().unwrap())
         .collect();
     (time, buses)
 }
 
-fn find_min_bus(buses: &Vec<usize>, time: usize) -> (usize, usize) {
+fn find_min_bus(buses: &[usize], time: usize) -> (usize, usize) {
     let bus_times: Vec<(usize, usize)> = buses
         .iter()
         .map(|&b| (b, ((time as f64 / b as f64).ceil() as usize) * b))
@@ -39,12 +39,12 @@ fn find_min_bus(buses: &Vec<usize>, time: usize) -> (usize, usize) {
 }
 
 #[allow(dead_code)]
-fn find_min_bus_cute(buses: &Vec<usize>, time: usize) -> (usize, usize) {
+fn find_min_bus_cute(buses: &[usize], time: usize) -> (usize, usize) {
     let mut min_bus = 0;
     let mut min_time = usize::MAX;
     for bus in buses {
-        let bus_times = (0..).step_by(*bus);
-        let bus_time = bus_times.skip_while(|&t| t < time).next().unwrap();
+        let mut bus_times = (0..).step_by(*bus);
+        let bus_time = bus_times.find(|&t| t >= time).unwrap();
         if bus_time < min_time {
             min_time = bus_time;
             min_bus = *bus;
@@ -53,9 +53,9 @@ fn find_min_bus_cute(buses: &Vec<usize>, time: usize) -> (usize, usize) {
     (min_bus, min_time)
 }
 
-fn find_bus_seq_time_iterative(input: &Vec<String>) -> u64 {
+fn find_bus_seq_time_iterative(input: &[String]) -> u64 {
     let buses: Vec<(u64, u64)> = input[1]
-        .split(",")
+        .split(',')
         .enumerate()
         .filter(|(_, s)| s != &"x")
         .map(|(i, s)| (i as u64, s.parse().unwrap()))
@@ -77,9 +77,9 @@ fn find_bus_seq_time_iterative(input: &Vec<String>) -> u64 {
 }
 
 #[allow(dead_code)]
-fn find_bus_seq_time_brute_force(input: &Vec<String>) -> u64 {
+fn find_bus_seq_time_brute_force(input: &[String]) -> u64 {
     let buses: Vec<(usize, usize)> = input[1]
-        .split(",")
+        .split(',')
         .enumerate()
         .filter(|(_, s)| s != &"x")
         .map(|(i, s)| (i, s.parse().unwrap()))
@@ -88,12 +88,11 @@ fn find_bus_seq_time_brute_force(input: &Vec<String>) -> u64 {
     (*max_bus as u64..)
         .step_by(*max_bus)
         .map(|time| time - *max_bus_offset as u64)
-        .skip_while(|&time| {
+        .find(|&time| {
             buses
                 .iter()
-                .any(|(offset, bus)| (time as u64 + *offset as u64) % *bus as u64 != 0)
+                .all(|(offset, bus)| (time as u64 + *offset as u64) % *bus as u64 == 0)
         })
-        .next()
         .unwrap()
 }
 
