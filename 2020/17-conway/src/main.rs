@@ -1,7 +1,7 @@
-use std::cmp;
 use std::collections::HashSet;
+use std::iter;
 
-type Coord = (isize, isize, isize);
+type Coord = Vec<isize>;
 type Bound = (isize, isize);
 
 fn main() {
@@ -9,7 +9,12 @@ fn main() {
     let input = util::read_lines(input_file);
 
     // part 1
-    let actives = parse_input(&input);
+    let actives = parse_input(&input, 3);
+    let actives = run(&actives, 6);
+    println!("Num actives: {}", actives.len());
+
+    // part 2
+    let actives = parse_input(&input, 4);
     let actives = run(&actives, 6);
     println!("Num actives: {}", actives.len());
 }
@@ -24,68 +29,99 @@ fn run(actives: &HashSet<Coord>, iterations: usize) -> HashSet<Coord> {
 
 fn _run(actives: &HashSet<Coord>) -> HashSet<Coord> {
     let mut new_actives = HashSet::new();
-    let ((minx, maxx), (miny, maxy), (minz, maxz)) = find_bounds(actives);
-    for x in minx..=maxx {
-        for y in miny..=maxy {
-            for z in minz..=maxz {
-                if should_activate((x, y, z), actives) {
-                    new_actives.insert((x, y, z));
-                }
-            }
+    let bounds = find_bounds(actives);
+    let dimension_iters: Vec<Vec<isize>> = bounds
+        .iter()
+        .map(|(min, max)| (*min..=*max).collect())
+        .collect();
+    for coord in &cartesian_product(&dimension_iters) {
+        if should_activate(coord.clone(), actives) {
+            new_actives.insert(coord.clone());
         }
     }
     new_actives
 }
 
 /// Returns the bounding box +/- 1 for the 3-D space.
-fn find_bounds(actives: &HashSet<Coord>) -> (Bound, Bound, Bound) {
-    let init = (
-        (isize::MAX, isize::MIN),
-        (isize::MAX, isize::MIN),
-        (isize::MAX, isize::MIN),
-    );
-    actives.iter().fold(
-        init,
-        |((minx, maxx), (miny, maxy), (minz, maxz)), (x, y, z)| {
-            (
-                (cmp::min(minx, *x - 1), cmp::max(maxx, *x + 1)),
-                (cmp::min(miny, *y - 1), cmp::max(maxy, *y + 1)),
-                (cmp::min(minz, *z - 1), cmp::max(maxz, *z + 1)),
-            )
-        },
-    )
-}
-
-fn should_activate(coords: Coord, actives: &HashSet<Coord>) -> bool {
-    let (x, y, z) = coords;
-    let mut neighbors = 0;
-    for x_ in -1..=1 {
-        for y_ in -1..=1 {
-            for z_ in -1..=1 {
-                if x_ == 0 && y_ == 0 && z_ == 0 {
-                    continue;
-                }
-                if actives.contains(&(x + x_, y + y_, z + z_)) {
-                    neighbors += 1;
-                }
+fn find_bounds(actives: &HashSet<Coord>) -> Vec<Bound> {
+    let mut actives = actives.iter();
+    let mut bounds: Vec<Bound> = actives
+        .next()
+        .unwrap()
+        .iter()
+        .map(|dim| (dim - 1, dim + 1))
+        .collect();
+    for coord in actives {
+        for i in 0..coord.len() {
+            let (min, max) = bounds[i];
+            if coord[i] - 1 < min {
+                bounds[i] = (coord[i] - 1, max);
+            }
+            if coord[i] + 1 > max {
+                bounds[i] = (min, coord[i] + 1);
             }
         }
     }
-    if actives.contains(&(x, y, z)) {
+    bounds
+}
+
+fn should_activate(coord: Coord, actives: &HashSet<Coord>) -> bool {
+    let mut neighbors = 0;
+    let dimensions = coord.len();
+    let coord_iters: Vec<Vec<isize>> = iter::repeat((-1..=1).collect()).take(dimensions).collect();
+
+    for coord_ in cartesian_product(&coord_iters) {
+        if coord_.iter().all(|&offset| offset == 0) {
+            continue;
+        }
+        if actives.contains(
+            &((0..dimensions)
+                .map(|i| coord[i] + coord_[i])
+                .collect::<Vec<isize>>()),
+        ) {
+            neighbors += 1;
+        }
+    }
+    if actives.contains(&coord) {
         neighbors == 2 || neighbors == 3
     } else {
         neighbors == 3
     }
 }
 
-fn parse_input(input: &[String]) -> HashSet<Coord> {
+fn parse_input(input: &[String], dimensions: usize) -> HashSet<Coord> {
     let mut actives = HashSet::new();
     for (x, line) in input.iter().enumerate() {
         for (y, ch) in line.chars().enumerate() {
             if ch == '#' {
-                actives.insert((x as isize, y as isize, 0));
+                let mut coord = vec![x as isize, y as isize];
+                coord.extend(iter::repeat(0).take(dimensions - 2));
+                actives.insert(coord);
             }
         }
     }
     actives
+}
+
+// Borrowed from https://rosettacode.org/wiki/Cartesian_product_of_two_or_more_lists#Rust
+fn cartesian_product<T: Copy>(lists: &Vec<Vec<T>>) -> Vec<Vec<T>> {
+    let mut res: Vec<Vec<T>> = vec![];
+    let mut list_iter = lists.iter();
+    if let Some(first_list) = list_iter.next() {
+        for &i in first_list {
+            res.push(vec![i]);
+        }
+    }
+    for l in list_iter {
+        let mut tmp = vec![];
+        for r in res {
+            for &el in l {
+                let mut tmp_el = r.clone();
+                tmp_el.push(el);
+                tmp.push(tmp_el);
+            }
+        }
+        res = tmp;
+    }
+    res
 }
