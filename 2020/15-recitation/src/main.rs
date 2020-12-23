@@ -1,12 +1,11 @@
 use std::collections::HashMap;
 use std::iter::Iterator;
-use util;
 
 fn main() {
     let input_file = util::get_input_file("./input.txt");
     let input = util::read_lines(input_file);
 
-    let numbers: Vec<usize> = input[0].split(",").map(|l| l.parse().unwrap()).collect();
+    let numbers: Vec<usize> = input[0].split(',').map(|l| l.parse().unwrap()).collect();
 
     // part 1
     let answer = recite(&numbers, 2020);
@@ -17,11 +16,12 @@ fn main() {
     println!("30,000,000th number: {}", answer);
 }
 
-fn recite(numbers: &Vec<usize>, nth: usize) -> usize {
-    recitation_seq(numbers.clone()).nth(nth - 1).unwrap()
+fn recite(numbers: &[usize], nth: usize) -> usize {
+    recitation_seq(numbers).nth(nth - 1).unwrap()
 }
 
-fn recitation_seq(seed: Vec<usize>) -> impl std::iter::Iterator<Item = usize> {
+fn recitation_seq(seed: &[usize]) -> impl std::iter::Iterator<Item = usize> {
+    let seed = seed.to_owned();
     // map num -> last utterance
     let mut last_pos: HashMap<usize, usize> = HashMap::new();
     for (i, num) in seed[..seed.len() - 1].iter().enumerate() {
