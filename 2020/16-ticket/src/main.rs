@@ -3,6 +3,7 @@ use std::collections::HashSet;
 use std::ops::RangeInclusive;
 
 type Ticket = Vec<usize>;
+type TicketArg = [usize];
 type FieldRanges = Vec<RangeInclusive<usize>>;
 
 fn main() {
@@ -70,7 +71,7 @@ fn get_field_map<'a>(
     field_map
 }
 
-fn get_departure_product(ticket: &Ticket, field_map: &HashMap<&str, usize>) -> usize {
+fn get_departure_product(ticket: &TicketArg, field_map: &HashMap<&str, usize>) -> usize {
     field_map
         .iter()
         .filter(|(key, _)| key.contains("departure"))
@@ -78,11 +79,11 @@ fn get_departure_product(ticket: &Ticket, field_map: &HashMap<&str, usize>) -> u
         .product()
 }
 
-fn is_valid(ticket: &Ticket, ranges: &HashMap<&str, FieldRanges>) -> bool {
+fn is_valid(ticket: &TicketArg, ranges: &HashMap<&str, FieldRanges>) -> bool {
     invalid_fields(ticket, ranges).is_empty()
 }
 
-fn invalid_fields(ticket: &Ticket, ranges: &HashMap<&str, FieldRanges>) -> Ticket {
+fn invalid_fields(ticket: &TicketArg, ranges: &HashMap<&str, FieldRanges>) -> Ticket {
     ticket
         .iter()
         .cloned()
@@ -107,7 +108,7 @@ fn parse_ranges(input: &[String]) -> HashMap<&str, FieldRanges> {
             field,
             range_strs
                 .map(|range_str| {
-                    let parts: Vec<&str> = range_str.split("-").collect();
+                    let parts: Vec<&str> = range_str.split('-').collect();
                     parts[0].parse().unwrap()..=parts[1].parse().unwrap()
                 })
                 .collect(),
@@ -119,7 +120,7 @@ fn parse_ranges(input: &[String]) -> HashMap<&str, FieldRanges> {
 fn parse_tickets(input: &[String]) -> Vec<Vec<usize>> {
     input
         .iter()
-        .filter(|l| l.contains(","))
-        .map(|l| l.split(",").map(|s| s.parse().unwrap()).collect())
+        .filter(|l| l.contains(','))
+        .map(|l| l.split(',').map(|s| s.parse().unwrap()).collect())
         .collect()
 }
